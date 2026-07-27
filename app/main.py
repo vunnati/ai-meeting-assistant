@@ -1,5 +1,10 @@
-from fastapi import FastAPI
+from sqlalchemy import select
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, EmailStr
+from app.database import SessionLocal, engine, Base
+from app.models import User
+
+Base.metadata.create_all(bind = engine)
 
 # create application/backend server. Every endpoint belongs to this
 app = FastAPI()
@@ -8,9 +13,6 @@ app = FastAPI()
 class RegisterUser(BaseModel):
     email: EmailStr
     password: str
-
-# return python dictionary--> which is converted to JSON automatically.
-# will check other services as added
 
 
 @app.get("/health")
@@ -22,12 +24,31 @@ def healthCheck():
 
 @app.post("/register")
 def registerUser(user: RegisterUser):
-    return {
-        "Message": "User Registration Successful!",
-        "Email": user.email
+    # open database session
+    database = SessionLocal()
+
+    existing_user = database.scalar(
+        select(User).where(User.email == user.email)
+    )
+
+    # raise HTTP error if user exists in db, else create new user entry
+    if existing_user:
+        raise HTTPException(
+            status_code=400,
+            detail="Email is already registered. Please Login."
+        )
+    else:
+        new_user = User(
+            email = user.email,
+            password = user.password
+        )
+
+    # add new user to database
+    database.add(new_user)
+    database.commit()
+    database.refresh(new_user)
+
+    # function return
+    return{
+        "message": "User successfully registered.",
     }
-
-
-
-
-
