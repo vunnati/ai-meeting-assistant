@@ -1,6 +1,5 @@
 from sqlalchemy.orm import mapped_column
 from sqlalchemy import Integer, String
-
 from app.database import Base
 
 
@@ -9,7 +8,7 @@ class User(Base):
 
     id = mapped_column(Integer, primary_key=True)
     email = mapped_column(String, nullable=False, unique=True)
-    password = mapped_column(String, nullable=False)
+    hashed_password = mapped_column(String, nullable=False)
 
 # class Meeting(Base):
 # __tablename__ = "meetings"

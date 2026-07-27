@@ -1,6 +1,7 @@
-from sqlalchemy import select
+import bcrypt
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, EmailStr
+from sqlalchemy import select
 from app.database import SessionLocal, engine, Base
 from app.models import User
 
@@ -30,6 +31,10 @@ def registerUser(user: RegisterUser):
     existing_user = database.scalar(
         select(User).where(User.email == user.email)
     )
+    
+    password = user.password
+    password_to_bytes = password.encode('utf-8')
+    salt = bcrypt.gensalt()
 
     # raise HTTP error if user exists in db, else create new user entry
     if existing_user:
@@ -40,7 +45,7 @@ def registerUser(user: RegisterUser):
     else:
         new_user = User(
             email = user.email,
-            password = user.password
+            hashed_password = bcrypt.hashpw(password_to_bytes, salt)
         )
 
     # add new user to database
