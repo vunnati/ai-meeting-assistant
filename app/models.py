@@ -10,10 +10,10 @@ class User(Base):
     email = mapped_column(String, nullable=False, unique=True)
     hashed_password = mapped_column(String, nullable=False)
 
-# class Meeting(Base):
-# __tablename__ = "meetings"
+class Meeting(Base):
+    __tablename__ = "meetings"
 
-# id = mapped_column(Integer, primary_key = True)
-# meeting_title = mapped_column(String, nullable = False)
-# meeting_date = mapped_column(String, nullable=False)
-# summary = mapped_column(String)
+    id = mapped_column(Integer, primary_key = True)
+    meeting_title = mapped_column(String, nullable = False)
+    meeting_date = mapped_column(String, nullable=False)
+    summary = mapped_column(String)
